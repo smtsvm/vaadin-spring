@@ -18,7 +18,15 @@ public class ParticipantService implements InitializingBean{
     ParticipantRepository participantRepository;
 
     public void addParticipant(String username, String firstname, String lastname, int age){
-        Participant participant = new Participant(username,firstname,lastname,age);
+        Participant participant = new Participant();
+        participant.setUsername(username);
+        participant.setFirstname(firstname);
+        participant.setLastname(lastname);
+        participant.setAge(age);
+        participantRepository.save(participant);
+    }
+
+    public void addParticipant(Participant participant){
         participantRepository.save(participant);
     }
 
@@ -30,5 +38,9 @@ public class ParticipantService implements InitializingBean{
 
     public List<Participant> getAll() {
         return (List<Participant>) participantRepository.findAll();
+    }
+
+    public void deleteParticipant(Participant participant) {
+        participantRepository.delete(participant);
     }
 }

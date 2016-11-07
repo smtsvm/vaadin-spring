@@ -1,10 +1,14 @@
 package gdg.eskisehir.ui.component;
 
 import com.vaadin.ui.*;
+import gdg.eskisehir.model.Participant;
 import gdg.eskisehir.service.ParticipantService;
 import gdg.eskisehir.service.Registry;
 import gdg.eskisehir.ui.event.VaadinEvent;
 import gdg.eskisehir.ui.event.VaadinEventBus;
+import org.vaadin.crudui.impl.crud.GridBasedCrudComponent;
+
+import java.util.Collection;
 
 /**
  * Created by Samet SEVİM on 4.11.2016.
@@ -15,30 +19,35 @@ public class ParticipantCreationLayout extends VerticalLayout{
     public ParticipantCreationLayout(){
         participantService = Registry.getParticipantService();
 
-        traditionalWork();
+        crudUIWork();
     }
 
-    public void traditionalWork(){
-        TextField usernameField = new TextField("Username");
-        TextField firstnameField = new TextField("Firstname");
-        TextField lastnameField = new TextField("Lastname");
-        TextField ageField = new TextField("Age");
+    private void crudUIWork(){
+        GridBasedCrudComponent<Participant> crud = new GridBasedCrudComponent<>(Participant.class, new GridBasedCrudComponent.GridCrudListener<Participant>() {
+            @Override
+            public Collection<Participant> refreshTable() {
+                return participantService.getAll();
+            }
 
+            @Override
+            public void add(Participant domainObjectToAdd) {
+                participantService.addParticipant(domainObjectToAdd);
+            }
 
-        FormLayout formLayout = new FormLayout(usernameField,firstnameField,lastnameField,ageField);
+            @Override
+            public void update(Participant domainObjectToUpdate) {
+                participantService.addParticipant(domainObjectToUpdate);
+            }
 
-        Button saveParticipantButton = new Button("Save");
-        saveParticipantButton.addClickListener(e->{
-            participantService.addParticipant(usernameField.getValue(), firstnameField.getValue(), lastnameField.getValue(), Integer.parseInt(ageField.getValue()));
-            Notification.show("Save Success :)");
-            usernameField.setValue("");
-            firstnameField.setValue("");
-            lastnameField.setValue("");
-            ageField.setValue("");
-            VaadinEventBus.post(new VaadinEvent.RefreshParticipantTable());
+            @Override
+            public void delete(Participant domainObjectToDelete) {
+                participantService.deleteParticipant(domainObjectToDelete);
+            }
         });
 
-        addComponents(formLayout,saveParticipantButton);
-        setMargin(true);
+        crud.showAllOptions(); // shows: refresh table, add, edit, and delete options.
+
+        addComponent(crud); // add the crud into a layout
     }
+
 }
